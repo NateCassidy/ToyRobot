@@ -20,47 +20,33 @@
 
         public void ExecuteCommands()
         {
-            if(_commandsToExecute.Length == 0)
-            {
-                Console.WriteLine("You have given me no commands.");
-                return;
-            }
- 
-            bool hasRobotReceivedPlaceCommand = false;
-
             foreach(string command in _commandsToExecute)
             {
-                if(!hasRobotReceivedPlaceCommand && command != Constants.PLACE)
+                switch (command)
                 {
-                    Console.WriteLine($"A valid {Constants.PLACE} command has not been received. Discarding the following command: {command}");
-                    continue;
-                }
+                    case Constants.PLACE:
+                        Place();
+                        break;
 
-                // TODO - Move the PLACE command into a controller? That should be responsible for placing the robot, and checking if it's able to be placed?
-                if(command == Constants.PLACE)
-                {
-                    hasRobotReceivedPlaceCommand = true;
-                    Place();
-                }
-                else if(command == Constants.MOVE)
-                {
-                    Move();
-                }
-                else if(command == Constants.REPORT)
-                {
-                    Report();
-                }
-                else if(command == Constants.RIGHT)
-                {
-                    TurnRight();
-                }
-                else if(command == Constants.LEFT)
-                {
-                    TurnLeft();
-                }
-                else
-                {
-                    Console.WriteLine($"Unknown command specified: {command} - No action has been carried out.");
+                    case Constants.MOVE:
+                        Move();
+                        break;
+
+                    case Constants.LEFT:
+                        TurnLeft();
+                        break;
+
+                    case Constants.RIGHT:
+                        TurnRight();
+                        break;
+
+                    case Constants.REPORT:
+                        Report();
+                        break;
+
+                    default:
+                        Console.WriteLine($"Unknown command specified: {command} - No action has been carried out.");
+                        break;
                 }
             }
         }
