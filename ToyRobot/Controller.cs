@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ToyRobot
+﻿namespace ToyRobot
 {
     internal class Controller
     {
@@ -17,14 +11,27 @@ namespace ToyRobot
             // TODO - Tidy up file manager, remove printStoredFileContent
             _fileManager = new FileManager(@"C:\Users\nazca\Documents\GitHub\ToyRobot\ToyRobot\CommandSetOne.txt");
             _fileManager.ReadFromFile();
+
+            _table = new Table(5, 5);
         }
 
-        public void PlaceRobot()
+        public void SendCommandsToRobot()
         {
-            if (!ValidateCommandListForRobot())
+            if (IsCommandListForRobotValid())
             {
-                _robot = new Robot(GetCommandListForRobot());
-                _robot.ExecuteCommands();
+                NavigationChip chip = new NavigationChip(_table.getWidth() - 1, _table.getHeight() - 1);
+
+                _robot = new Robot(chip);
+
+                foreach(string command in GetCommandListForRobot())
+                {
+                    if (command.StartsWith(Constants.PLACE))
+                    {
+                        PlaceRobot(command);
+                        continue;
+                    }
+                    _robot.ExecuteCommand(command);
+                }
             }
             else
             {
@@ -32,10 +39,21 @@ namespace ToyRobot
             }
         }
 
+        // Places the Robot at X and Y position, facing the specified direction.
+        private void PlaceRobot(string command)
+        {
+            string placeCommandParams = command.Substring(command.IndexOf(' '));
+            string[] placementParams = placeCommandParams.Split(',');
+
+            _robot.setCurrentXPosition(Int32.Parse(placementParams[0]));
+            _robot.setCurrentYPosition(Int32.Parse(placementParams[1]));
+            _robot.setCurrentFacing(placementParams[2]);
+        }
+
         // Returns an array of strings containing the initial PLACE command and all subsequent commands. Discards all commands prior to the initial PLACE command
         private string[] GetCommandListForRobot()
         {
-            int indexOfInitialPlaceCommand = Array.FindIndex(_fileManager.getFileContent(), (command) => command.Equals(Constants.PLACE));
+            int indexOfInitialPlaceCommand = Array.FindIndex(_fileManager.getFileContent(), (command) => command.StartsWith(Constants.PLACE));
             Console.WriteLine($"Discarding the following commands: {string.Join(", ", _fileManager.getFileContent().Take(indexOfInitialPlaceCommand))}");
 
             string[] robotCommands = _fileManager.getFileContent().Skip(indexOfInitialPlaceCommand).ToArray();
@@ -43,10 +61,10 @@ namespace ToyRobot
         }
 
         // Validates the commands received from the FileManager by checking for an initial PLACE command.
-        private bool ValidateCommandListForRobot()
+        private bool IsCommandListForRobotValid()
         {
-            int indexOfInitialPlaceCommand = Array.FindIndex(_fileManager.getFileContent(), (command) => command.Equals(Constants.PLACE));
-            return indexOfInitialPlaceCommand == -1;
+            int indexOfInitialPlaceCommand = Array.FindIndex(_fileManager.getFileContent(), (command) => command.StartsWith(Constants.PLACE));
+            return indexOfInitialPlaceCommand > -1;
         }
     }
 }

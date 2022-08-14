@@ -1,13 +1,11 @@
-﻿using System.Reflection;
-
-namespace ToyRobot
+﻿namespace ToyRobot
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Controller controller = new Controller();
-            controller.PlaceRobot();
+            Controller controller = new Controller(); 
+            controller.SendCommandsToRobot();
         }
     }
 }
