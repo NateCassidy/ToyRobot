@@ -1,6 +1,6 @@
 ﻿namespace ToyRobot
 {
-    internal class Constants
+    public class Constants
     {
         public const string MOVE = "MOVE";
         public const string PLACE = "PLACE";

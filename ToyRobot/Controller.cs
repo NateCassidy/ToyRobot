@@ -8,7 +8,7 @@
 
         public Controller()
         {
-            // TODO - Tidy up file manager, remove printStoredFileContent
+            // TODO - Change this to accept any file within this directory
             _fileManager = new FileManager(@"C:\Users\nazca\Documents\GitHub\ToyRobot\ToyRobot\CommandSetTwo.txt");
             _fileManager.ReadFromFile();
 
@@ -53,8 +53,13 @@
         // Returns an array of strings containing the initial PLACE command and all subsequent commands. Discards all commands prior to the initial PLACE command
         private string[] GetCommandListForRobot()
         {
-            int indexOfInitialPlaceCommand = Array.FindIndex(_fileManager.getFileContent(), (command) => command.StartsWith(Constants.PLACE));
-            Console.WriteLine($"Discarding the following commands: {string.Join(", ", _fileManager.getFileContent().Take(indexOfInitialPlaceCommand))}");
+            int indexOfInitialPlaceCommand = GetIndexOfInitialPlaceCommand();
+
+            // If the index is greater than 0, it means we had some invalid commands prior to the initial PLACE. Print them out to the user.
+            if(indexOfInitialPlaceCommand > 0)
+            {
+                Console.WriteLine($"Discarding the following commands: {string.Join(", ", _fileManager.getFileContent().Take(indexOfInitialPlaceCommand))}");
+            }
 
             string[] robotCommands = _fileManager.getFileContent().Skip(indexOfInitialPlaceCommand).ToArray();
             return robotCommands;
@@ -63,8 +68,12 @@
         // Validates the commands received from the FileManager by checking for an initial PLACE command.
         private bool IsCommandListForRobotValid()
         {
-            int indexOfInitialPlaceCommand = Array.FindIndex(_fileManager.getFileContent(), (command) => command.StartsWith(Constants.PLACE));
-            return indexOfInitialPlaceCommand > -1;
+            return GetIndexOfInitialPlaceCommand() > -1;
+        }
+
+        private int GetIndexOfInitialPlaceCommand()
+        {
+            return Array.FindIndex(_fileManager.getFileContent(), (command) => command.StartsWith(Constants.PLACE));
         }
     }
 }

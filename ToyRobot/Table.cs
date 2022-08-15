@@ -1,6 +1,6 @@
 ﻿namespace ToyRobot
 {
-    internal class Table
+    public class Table
     {
         private int[,] _dimensions;
 

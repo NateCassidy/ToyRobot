@@ -1,6 +1,6 @@
 ﻿namespace ToyRobot
 {
-    internal class NavigationChip
+    public class NavigationChip
     {
         private readonly int _northConstraint;
         private readonly int _eastConstraint;
@@ -39,11 +39,10 @@
             }
         }
 
-        // Rotates the calling class based on its current facing and whether its turning right. This would enable an easy extension of the number of facings 
-        // and as such, we could easily add in facings such as NorthEast, SouthEast etc.
-        public string rotate(string currentFacing, bool isTurningRight)
+        // Rotates the calling class based on its current facing and whether its turning right.
+        public string rotate(string facing, bool isTurningRight)
         {
-            int indexToUse = Array.IndexOf(_directions, currentFacing);
+            int indexToUse = Array.IndexOf(_directions, facing);
             int directionsMaximumIndex = _directions.Length - 1;
 
             if(indexToUse == 0 && !isTurningRight)
