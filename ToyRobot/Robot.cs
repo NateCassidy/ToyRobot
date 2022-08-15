@@ -104,12 +104,12 @@
 
         private void TurnRight()
         {
-            Console.WriteLine("Turning right...");
+            _currentFacing = _navigationChip.rotate(_currentFacing, true);
         }
 
         private void TurnLeft()
         {
-            Console.WriteLine("Turning left...");
+            _currentFacing = _navigationChip.rotate(_currentFacing, false);
         }
     }
 }

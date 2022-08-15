@@ -9,7 +9,7 @@
         public Controller()
         {
             // TODO - Tidy up file manager, remove printStoredFileContent
-            _fileManager = new FileManager(@"C:\Users\nazca\Documents\GitHub\ToyRobot\ToyRobot\CommandSetOne.txt");
+            _fileManager = new FileManager(@"C:\Users\nazca\Documents\GitHub\ToyRobot\ToyRobot\CommandSetTwo.txt");
             _fileManager.ReadFromFile();
 
             _table = new Table(5, 5);

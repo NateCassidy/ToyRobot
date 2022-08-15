@@ -5,6 +5,7 @@
         private readonly int _northConstraint;
         private readonly int _eastConstraint;
         private readonly int _westAndSouthConstraint;
+        private readonly string[] _directions;
 
         // Due to the task, we can assume the westAndSouthConstraint will always be 0. The other constraints are assigned via the height (North), and width (East)
         // We could extend this by adding a west and south constraint but for the purpose of this task, it's redundant.
@@ -13,6 +14,7 @@
             _eastConstraint = eastConstraint;
             _northConstraint = northConstraint;
             _westAndSouthConstraint = 0;
+            _directions = new string[] { Constants.NORTH, Constants.EAST, Constants.SOUTH, Constants.WEST };
         }
 
         // Takes in the X, Y, and F of the calling class and checks if it can perform the action.
@@ -37,6 +39,23 @@
             }
         }
 
-        // TODO - Function to turn the calling class in a specified direction.
+        // Rotates the calling class based on its current facing and whether its turning right. This would enable an easy extension of the number of facings 
+        // and as such, we could easily add in facings such as NorthEast, SouthEast etc.
+        public string rotate(string currentFacing, bool isTurningRight)
+        {
+            int indexToUse = Array.IndexOf(_directions, currentFacing);
+            int directionsMaximumIndex = _directions.Length - 1;
+
+            if(indexToUse == 0 && !isTurningRight)
+            {
+                return _directions[directionsMaximumIndex];
+            }
+
+            if(indexToUse == directionsMaximumIndex && isTurningRight)
+            {
+                return _directions[0];
+            }
+            return _directions[isTurningRight ? indexToUse + 1 : indexToUse - 1];
+        }
     }
 }
