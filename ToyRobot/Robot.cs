@@ -1,6 +1,6 @@
 ﻿namespace ToyRobot
 {
-    internal class Robot
+    public class Robot
     {
         private string _currentFacing;
 
@@ -15,10 +15,14 @@
             _navigationChip = navigationChip;
         }
 
-        // TODO - Consider refactoring these setters into a single function.
         public void setCurrentFacing(string facing)
         {
             _currentFacing = facing;
+        }
+
+        public string getCurrentFacing()
+        {
+            return _currentFacing;
         }
 
         public void setCurrentXPosition(int x)
@@ -26,9 +30,19 @@
             _currentXPosition = x;
         }
 
+        public int getCurrentXPosition()
+        {
+            return _currentXPosition;
+        }
+
         public void setCurrentYPosition(int y)
         {
             _currentYPosition = y;
+        }
+
+        public int getCurrentYPosition()
+        {
+            return _currentYPosition;
         }
 
         public void ExecuteCommand(string command)
@@ -99,7 +113,7 @@
 
         private void Report()
         {
-            Console.WriteLine($"Reporting. Currently facing {_currentFacing} at coordinates - X:{_currentXPosition}, Y:{_currentYPosition}.");
+            Console.WriteLine($"Reporting.....Currently facing {_currentFacing} at coordinates - X:{_currentXPosition}, Y:{_currentYPosition}.");
         }
 
         private void TurnRight()
