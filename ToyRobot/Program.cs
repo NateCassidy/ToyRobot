@@ -4,8 +4,8 @@
     {
         static void Main(string[] args)
         {
-            Controller controller = new Controller(); 
-            controller.SendCommandsToRobot();
+            Controller controller = new Controller();
+            controller.SetupApplication();
         }
     }
 }

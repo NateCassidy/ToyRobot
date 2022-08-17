@@ -2,9 +2,22 @@
 {
     internal class Controller
     {
+        private bool _isUsingFileManager;
+
         private Robot _robot;
         private Table _table;
         private FileManager _fileManager;
+        private InputManager _inputManager;
+
+        private void setIsUsingFileManager(bool isUsingFileManager)
+        {
+            _isUsingFileManager = isUsingFileManager;
+        }
+
+        private bool getIsUsingFileManager()
+        {
+            return _isUsingFileManager;
+        }
 
         public Controller()
         {
@@ -12,25 +25,91 @@
             _fileManager = new FileManager(@"C:\Users\nazca\Documents\GitHub\ToyRobot\ToyRobot\CommandSetTwo.txt");
             _fileManager.ReadFromFile();
 
+            _inputManager = new InputManager();
             _table = new Table(5, 5);
         }
 
-        public void SendCommandsToRobot()
+        // Determines whether the application is taking input via the command line or a file and sets up the robot.
+        public void SetupApplication()
+        {
+           setIsUsingFileManager(_inputManager.PromptUserToUseFileManager());
+
+            NavigationChip chip = new NavigationChip(_table.getWidth() - 1, _table.getHeight() - 1);
+            _robot = new Robot(chip);
+
+            if (_isUsingFileManager)
+            {
+                SendCommandsToRobot();
+            }
+            else
+            {
+                GetInputFromInputManager();
+            }
+        }
+
+        private void GetInputFromInputManager()
+        {
+            string userInput;
+
+            do
+            {
+                userInput = _inputManager.ReadInput();
+
+                if (_inputManager.IsUserInputValid(userInput))
+                {
+                    ExecuteCommand(userInput);
+                }
+                else
+                {
+                    Console.WriteLine($"'{userInput}' is not a valid command. Please try again.");
+                }
+            } while (userInput != "Q");
+            
+        }
+
+        private void ExecuteCommand(string command)
+        {
+            if (command.StartsWith(Constants.PLACE))
+            {
+                var (xPosition, yPosition, facing, isValidPlace) = ExtractPlacementCommandVariables(command);
+
+                if (!isValidPlace)
+                {
+                    Console.WriteLine($"The place command was not valid.");
+                    return;
+                }
+                PlaceRobot(xPosition, yPosition, facing);
+            }
+            else
+            {
+                _robot.ExecuteCommand(command);
+            }
+        }
+
+        private bool IsValidPlaceCommand(int x, int y)
+        {
+           return (x > -1 && x < 5) && (y > -1 && y < 5);
+        }
+
+        private (int, int, string, bool) ExtractPlacementCommandVariables(string command)
+        {
+            string placeCommandParams = command.Substring(command.IndexOf(' '));
+            string[] placementParams = placeCommandParams.Split(',');
+
+            int xPosition = Int32.Parse(placementParams[0]);
+            int yPosition = Int32.Parse(placementParams[1]);
+            string facing = placementParams[2];
+
+            return (xPosition, yPosition, facing, IsValidPlaceCommand(xPosition, yPosition));
+        }
+
+        private void SendCommandsToRobot()
         {
             if (IsCommandListForRobotValid())
             {
-                NavigationChip chip = new NavigationChip(_table.getWidth() - 1, _table.getHeight() - 1);
-
-                _robot = new Robot(chip);
-
                 foreach(string command in GetCommandListForRobot())
                 {
-                    if (command.StartsWith(Constants.PLACE))
-                    {
-                        PlaceRobot(command);
-                        continue;
-                    }
-                    _robot.ExecuteCommand(command);
+                    ExecuteCommand(command);
                 }
             }
             else
@@ -40,14 +119,11 @@
         }
 
         // Places the Robot at X and Y position, facing the specified direction.
-        private void PlaceRobot(string command)
-        {
-            string placeCommandParams = command.Substring(command.IndexOf(' '));
-            string[] placementParams = placeCommandParams.Split(',');
-
-            _robot.setCurrentXPosition(Int32.Parse(placementParams[0]));
-            _robot.setCurrentYPosition(Int32.Parse(placementParams[1]));
-            _robot.setCurrentFacing(placementParams[2]);
+        private void PlaceRobot(int x, int y, string facing)
+        { 
+            _robot.setCurrentXPosition(x);
+            _robot.setCurrentYPosition(y);
+            _robot.setCurrentFacing(facing);
         }
 
         // Returns an array of strings containing the initial PLACE command and all subsequent commands. Discards all commands prior to the initial PLACE command

@@ -47,7 +47,7 @@
         [TestCase(Constants.EAST, 3, 2)]    // Should move the Robot EAST and result in placement at coordinates X:3, Y:2
         [TestCase(Constants.SOUTH, 2, 1)]   // Should move the Robot SOUTH and result in placement at coordinates X:1, Y:2
         [TestCase(Constants.WEST, 1, 2)]    // Should move the Robot WEST and result in placement at coordinates X:1, Y:2
-        public void MoveWhenValid(string facing, int x, int y)
+        public void ExecuteCommandMoveWhenValid(string facing, int x, int y)
         {
             // Set the Robot to 2,2 each iteration with a new facing and execute the MOVE command
             _robot.setCurrentXPosition(2);
