@@ -189,7 +189,8 @@ namespace ToyRobot
             {
                 foreach(string command in GetCommandListForRobot())
                 {
-                    ExecuteCommand(command);
+                    string formattedCommand = command.ToUpper().Trim();
+                    ExecuteCommand(formattedCommand);
                 }
             }
             else
@@ -221,7 +222,7 @@ namespace ToyRobot
 
         private int GetIndexOfInitialPlaceCommand()
         {
-            return Array.FindIndex(_fileManager.getFileContent(), (command) => command.StartsWith(Constants.PLACE));
+            return Array.FindIndex(_fileManager.getFileContent(), (command) => command.ToUpper().Trim().StartsWith(Constants.PLACE));
         }
     }
 }
