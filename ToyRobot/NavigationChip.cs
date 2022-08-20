@@ -7,6 +7,11 @@
         private readonly int _westAndSouthConstraint;
         private readonly string[] _directions;
 
+        public string[] getDirections()
+        {
+            return _directions;
+        }
+
         // Due to the task, we can assume the westAndSouthConstraint will always be 0. The other constraints are assigned via the height (North), and width (East)
         // We could extend this by adding a west and south constraint but for the purpose of this task, it's redundant.
         public NavigationChip(int eastConstraint, int northConstraint)

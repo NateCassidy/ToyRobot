@@ -1,44 +1,44 @@
-﻿namespace ToyRobot
+﻿using System.Text.RegularExpressions;
+
+namespace ToyRobot
 {
     internal class Controller
     {
         private bool _isUsingFileManager;
+        private bool _hasInitialPlaceCommandBeenEntered;
 
         private Robot _robot;
         private Table _table;
         private FileManager _fileManager;
         private InputManager _inputManager;
+        private NavigationChip _chip;
 
         private void setIsUsingFileManager(bool isUsingFileManager)
         {
             _isUsingFileManager = isUsingFileManager;
         }
 
-        private bool getIsUsingFileManager()
-        {
-            return _isUsingFileManager;
-        }
-
         public Controller()
         {
-            // TODO - Change this to accept any file within this directory
-            _fileManager = new FileManager(@"C:\Users\nazca\Documents\GitHub\ToyRobot\ToyRobot\CommandSetTwo.txt");
-            _fileManager.ReadFromFile();
-
             _inputManager = new InputManager();
             _table = new Table(5, 5);
+
+            _chip = new NavigationChip(_table.getWidth() - 1, _table.getHeight() - 1);
+            _robot = new Robot(_chip);
+
+            _hasInitialPlaceCommandBeenEntered = false;
         }
 
-        // Determines whether the application is taking input via the command line or a file and sets up the robot.
+        // Determines whether the application is taking input via the command line or a file.
         public void SetupApplication()
         {
            setIsUsingFileManager(_inputManager.PromptUserToUseFileManager());
 
-            NavigationChip chip = new NavigationChip(_table.getWidth() - 1, _table.getHeight() - 1);
-            _robot = new Robot(chip);
-
             if (_isUsingFileManager)
             {
+                // TODO - Change this to accept any file within this directory
+                _fileManager = new FileManager(@"C:\Users\nazca\Documents\GitHub\ToyRobot\ToyRobot\CommandSetTwo.txt");
+                _fileManager.ReadFromFile();
                 SendCommandsToRobot();
             }
             else
@@ -53,7 +53,7 @@
 
             do
             {
-                userInput = _inputManager.ReadInput();
+                userInput = _inputManager.ReadInput().ToUpper();
 
                 if (_inputManager.IsUserInputValid(userInput))
                 {
@@ -64,31 +64,43 @@
                     Console.WriteLine($"'{userInput}' is not a valid command. Please try again.");
                 }
             } while (userInput != "Q");
-            
         }
 
         private void ExecuteCommand(string command)
         {
             if (command.StartsWith(Constants.PLACE))
             {
-                var (xPosition, yPosition, facing, isValidPlace) = ExtractPlacementCommandVariables(command);
-
-                if (!isValidPlace)
-                {
-                    Console.WriteLine($"The place command was not valid.");
-                    return;
-                }
-                PlaceRobot(xPosition, yPosition, facing);
+                ExecutePlaceCommand(command);
             }
-            else
+            else if (_hasInitialPlaceCommandBeenEntered)
             {
                 _robot.ExecuteCommand(command);
             }
+            else
+            {
+                Console.WriteLine($"You must enter a valid {Constants.PLACE} command prior to entering any others.");
+            }
         }
 
-        private bool IsValidPlaceCommand(int x, int y)
+        private void ExecutePlaceCommand(string command)
         {
-           return (x > -1 && x < 5) && (y > -1 && y < 5);
+            bool isPlaceCommandFormatValid = IsPlaceCommandFormatValid(command);
+
+            if (!isPlaceCommandFormatValid)
+            {
+                Console.WriteLine($"{Constants.PLACE} command was not in the correct format of: {Constants.PLACE} X,Y,F");
+                return;
+            }
+
+            var (xPosition, yPosition, facing, isValidPlace) = ExtractPlacementCommandVariables(command);
+
+            if (!isValidPlace)
+            {
+                Console.WriteLine($"The place command is in the correct format but is either outside the table constraints or has an incorrect facing.");
+                return;
+            }
+            _hasInitialPlaceCommandBeenEntered = true;
+            PlaceRobot(xPosition, yPosition, facing);
         }
 
         private (int, int, string, bool) ExtractPlacementCommandVariables(string command)
@@ -100,7 +112,24 @@
             int yPosition = Int32.Parse(placementParams[1]);
             string facing = placementParams[2];
 
-            return (xPosition, yPosition, facing, IsValidPlaceCommand(xPosition, yPosition));
+            return (xPosition, yPosition, facing, IsValidCoordinates(xPosition, yPosition) && IsValidFacing(facing));
+        }
+
+        private bool IsPlaceCommandFormatValid(string command)
+        {
+            var isPlaceCommandValid = Regex.Match(command, "^[a-zA-Z]+\\s[0-9]+,[0-9]+,[a-zA-Z]+$");
+            return isPlaceCommandValid.Success;
+        }
+
+        private bool IsValidCoordinates(int x, int y)
+        {
+            return (x > -1 && x < 5) && (y > -1 && y < 5);
+
+        }
+
+        private bool IsValidFacing(string facing)
+        {
+            return Array.IndexOf(_chip.getDirections(), facing) > -1;
         }
 
         private void SendCommandsToRobot()
