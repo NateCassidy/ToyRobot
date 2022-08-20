@@ -11,6 +11,34 @@
         }
 
         [Test]
+        // Should return the north constraint correctly
+        public void GetNorthConstraint()
+        {
+            Assert.That(_chip.getNorthConstraint(), Is.EqualTo(4));
+        }
+
+        [Test]
+        public void GetEastConstraint()
+        {
+            Assert.That(_chip.getEastConstraint(), Is.EqualTo(4));
+        }
+
+        [Test]
+        // Should return the west and south constraints correclty
+        public void GetWestAndSouthConstraints()
+        {
+            Assert.That(_chip.getWestAndSouthConstraint(), Is.EqualTo(0));
+        }
+
+        [Test]
+        // Should return the directions correctly
+        public void GetDirections()
+        {
+            Assert.That(_chip.getDirections(), Is.EqualTo(Constants.DIRECTIONS_ARRAY));
+        }
+
+
+        [Test]
         [TestCase(0, 0, "Invalid Facing", false)]   // Should return false when an unknown facing is passed in.
         [TestCase(0, 4, Constants.NORTH, false)]    // Should return false when the calling class is unable to move NORTH
         [TestCase(0, 3, Constants.NORTH, true)]     // Should return true when the calling class is able to move NORTH

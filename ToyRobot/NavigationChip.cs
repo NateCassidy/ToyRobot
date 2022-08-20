@@ -7,6 +7,21 @@
         private readonly int _westAndSouthConstraint;
         private readonly string[] _directions;
 
+        public int getWestAndSouthConstraint()
+        {
+            return _westAndSouthConstraint;
+        }
+
+        public int getNorthConstraint()
+        {
+            return _northConstraint;
+        }
+
+        public int getEastConstraint()
+        {
+            return _eastConstraint;
+        }
+
         public string[] getDirections()
         {
             return _directions;
@@ -19,7 +34,7 @@
             _eastConstraint = eastConstraint;
             _northConstraint = northConstraint;
             _westAndSouthConstraint = 0;
-            _directions = new string[] { Constants.NORTH, Constants.EAST, Constants.SOUTH, Constants.WEST };
+            _directions = Constants.DIRECTIONS_ARRAY;
         }
 
         // Takes in the X, Y, and F of the calling class and checks if it can perform the action.

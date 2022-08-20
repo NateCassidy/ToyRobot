@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace ToyRobot
 {
@@ -21,6 +22,7 @@ namespace ToyRobot
         public Controller()
         {
             _inputManager = new InputManager();
+            _fileManager = new FileManager();
             _table = new Table(5, 5);
 
             _chip = new NavigationChip(_table.getWidth() - 1, _table.getHeight() - 1);
@@ -36,36 +38,64 @@ namespace ToyRobot
 
             if (_isUsingFileManager)
             {
-                // TODO - Change this to accept any file within this directory
-                _fileManager = new FileManager(@"C:\Users\nazca\Documents\GitHub\ToyRobot\ToyRobot\CommandSetTwo.txt");
-                _fileManager.ReadFromFile();
-                SendCommandsToRobot();
+                _fileManager.PrintInstructions();
+                StartGetFileNameLoop();
             }
             else
             {
-                GetInputFromInputManager();
+                _inputManager.PrintInstructions();
+                StartInputLoop();
             }
         }
 
-        private void GetInputFromInputManager()
+        // Starts the Input Loop when using the InputManager. Reads input and passes it to validation, and checks for the user quitting the application.
+        private void StartInputLoop()
         {
             string userInput;
 
-            do
+            while (true)
             {
-                userInput = _inputManager.ReadInput().ToUpper();
+                userInput = _inputManager.ReadInput().ToUpper().Trim();
 
-                if (_inputManager.IsUserInputValid(userInput))
+                if(userInput == Constants.QUIT_COMMAND)
+                {
+                    break;
+                }
+                else if (_inputManager.IsUserInputValid(userInput))
                 {
                     ExecuteCommand(userInput);
                 }
                 else
                 {
-                    Console.WriteLine($"'{userInput}' is not a valid command. Please try again.");
+                    Console.WriteLine($"'{userInput}' is not a valid command. Please try again.\n");
                 }
-            } while (userInput != "Q");
+            }
+            Console.WriteLine("Closing the application. Thanks for having a look!");
         }
 
+        private void StartGetFileNameLoop()
+        {
+
+            while (true)
+            {
+                Console.Write("Please enter the file name, including the extension: ");
+
+                _fileManager.setFileName(Console.ReadLine());
+
+                if (_fileManager.DoesFileExist())
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine($"{_fileManager.getFileName()} is not a valid file. Please check and enter the correct fileName to proceed.\n");
+                }
+            }
+            _fileManager.ReadFromFile();
+            SendCommandsToRobot();
+        }
+
+        // Executes the commands. This is used for both the Input and File managers as the Robot operates on the same command list either way.
         private void ExecuteCommand(string command)
         {
             if (command.StartsWith(Constants.PLACE))
@@ -78,10 +108,11 @@ namespace ToyRobot
             }
             else
             {
-                Console.WriteLine($"You must enter a valid {Constants.PLACE} command prior to entering any others.");
+                Console.WriteLine($"{command} is a valid command. However, you must enter a valid {Constants.PLACE} command prior to entering any others.\n");
             }
         }
 
+        // Passes the PLACE command to the below validation functions, and executes it if applicable.
         private void ExecutePlaceCommand(string command)
         {
             bool isPlaceCommandFormatValid = IsPlaceCommandFormatValid(command);
@@ -89,6 +120,7 @@ namespace ToyRobot
             if (!isPlaceCommandFormatValid)
             {
                 Console.WriteLine($"{Constants.PLACE} command was not in the correct format of: {Constants.PLACE} X,Y,F");
+                Console.WriteLine($"Example: PLACE 2,2,NORTH - Valid facings are {Constants.NORTH}, {Constants.EAST}, {Constants.SOUTH}, {Constants.WEST}\n");
                 return;
             }
 
@@ -96,12 +128,25 @@ namespace ToyRobot
 
             if (!isValidPlace)
             {
-                Console.WriteLine($"The place command is in the correct format but is either outside the table constraints or has an incorrect facing.");
+                Console.WriteLine($"The place command is in the correct format but is either outside the table constraints or has an incorrect facing.\n");
                 return;
             }
+
             _hasInitialPlaceCommandBeenEntered = true;
             PlaceRobot(xPosition, yPosition, facing);
         }
+
+        // Places the Robot at X and Y position, facing the specified direction.
+        private void PlaceRobot(int x, int y, string facing)
+        {
+            _robot.setCurrentXPosition(x);
+            _robot.setCurrentYPosition(y);
+            _robot.setCurrentFacing(facing);
+        }
+
+
+        // CONTROLLER FUNCTIONS TO VALIDATE INPUT COMMANDS
+
 
         private (int, int, string, bool) ExtractPlacementCommandVariables(string command)
         {
@@ -123,7 +168,9 @@ namespace ToyRobot
 
         private bool IsValidCoordinates(int x, int y)
         {
-            return (x > -1 && x < 5) && (y > -1 && y < 5);
+            int westAndSouthConstraint = _chip.getWestAndSouthConstraint();
+
+            return (x >= westAndSouthConstraint && x < _chip.getEastConstraint()) && (y >= westAndSouthConstraint && y < _chip.getNorthConstraint());
 
         }
 
@@ -131,6 +178,10 @@ namespace ToyRobot
         {
             return Array.IndexOf(_chip.getDirections(), facing) > -1;
         }
+
+
+        // CONTROLLER FUNCTIONS TO MANAGE FILE COMMANDS
+
 
         private void SendCommandsToRobot()
         {
@@ -143,16 +194,8 @@ namespace ToyRobot
             }
             else
             {
-                Console.WriteLine($"No {Constants.PLACE} commands were found. Please restart and enter a valid command set with at least one {Constants.PLACE} command");
+                Console.WriteLine($"No {Constants.PLACE} commands were found. Please restart and enter a valid command set with at least one {Constants.PLACE} command in the correct format");
             }
-        }
-
-        // Places the Robot at X and Y position, facing the specified direction.
-        private void PlaceRobot(int x, int y, string facing)
-        { 
-            _robot.setCurrentXPosition(x);
-            _robot.setCurrentYPosition(y);
-            _robot.setCurrentFacing(facing);
         }
 
         // Returns an array of strings containing the initial PLACE command and all subsequent commands. Discards all commands prior to the initial PLACE command
