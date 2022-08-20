@@ -2,7 +2,7 @@
 
 This is a small C# application in which the aim is to help navigate a Robot around a table, without the Robot falling off.
 
-The Table is defaulted to 5x5; meaning the Robot can move frmo index 0 to index 4 on the X and Y axis. 
+The Table is defaulted to 5x5; meaning the Robot can move from index 0 to index 4 on the X and Y axis. 
 The point of origin (0,0) on the table is considered to be the SouthWest corner.
 
 *** VALID COMMAND LIST ***
