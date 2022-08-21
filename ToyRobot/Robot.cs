@@ -106,14 +106,14 @@
                     break;
 
                 default:
-                    Console.WriteLine($"An incorrect facing of '{facing}' was provided. No action was taken.");
+                    Console.WriteLine($"An incorrect facing of '{facing}' was provided. No action was taken.\n");
                     break;
             }
         }
 
         private void Report()
         {
-            Console.WriteLine($"Reporting.....Currently facing {_currentFacing} at coordinates - X:{_currentXPosition}, Y:{_currentYPosition}.");
+            Console.WriteLine($"Reporting.....Currently facing {_currentFacing} at coordinates - X:{_currentXPosition}, Y:{_currentYPosition}.\n");
         }
 
         private void TurnRight()

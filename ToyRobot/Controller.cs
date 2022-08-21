@@ -169,9 +169,7 @@ namespace ToyRobot
         private bool IsValidCoordinates(int x, int y)
         {
             int westAndSouthConstraint = _chip.getWestAndSouthConstraint();
-
             return (x >= westAndSouthConstraint && x < _chip.getEastConstraint()) && (y >= westAndSouthConstraint && y < _chip.getNorthConstraint());
-
         }
 
         private bool IsValidFacing(string facing)
@@ -189,8 +187,7 @@ namespace ToyRobot
             {
                 foreach(string command in GetCommandListForRobot())
                 {
-                    string formattedCommand = command.ToUpper().Trim();
-                    ExecuteCommand(formattedCommand);
+                    ExecuteCommand(command.ToUpper().Trim());
                 }
             }
             else
@@ -207,11 +204,10 @@ namespace ToyRobot
             // If the index is greater than 0, it means we had some invalid commands prior to the initial PLACE. Print them out to the user.
             if(indexOfInitialPlaceCommand > 0)
             {
-                Console.WriteLine($"Discarding the following commands: {string.Join(", ", _fileManager.getFileContent().Take(indexOfInitialPlaceCommand))}");
+                Console.WriteLine($"Discarding the following commands: {string.Join(", ", _fileManager.getFileContent().Take(indexOfInitialPlaceCommand))}\n");
             }
 
-            string[] robotCommands = _fileManager.getFileContent().Skip(indexOfInitialPlaceCommand).ToArray();
-            return robotCommands;
+            return _fileManager.getFileContent().Skip(indexOfInitialPlaceCommand).ToArray(); 
         }
 
         // Validates the commands received from the FileManager by checking for an initial PLACE command.
